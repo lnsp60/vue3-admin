@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import './style.less'
 import App from './App.vue'
 import router from './router'
+import "@/mock"
 // 引入ElementPlus组件库
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
@@ -11,6 +12,8 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 // 引入pinia
 import { createPinia  } from 'pinia'
+
+import "@/router/guard"
 
 const app = createApp(App)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {

@@ -2,6 +2,8 @@
 import logo from "@/assets/logo.png"
 import { ref,reactive } from "vue"
 import type { FormRules,FormInstance } from 'element-plus'
+import { useUserStore } from "@/store/auth"
+import { useRouter } from "vue-router"
 interface ruleForm{
   username:string,
   password:string
@@ -24,11 +26,18 @@ const rules = reactive<FormRules<ruleForm>>({
 })
 
 const formRef = ref<FormInstance>()
+const userStore = useUserStore()
+const router = useRouter()
 const handleLogin = () => {
-  formRef.value?.validate((valid:boolean) => { //?. 可选链操作符   obj?obj.name:"" obj?.name
+  formRef.value?.validate(async (valid:boolean) => { //?. 可选链操作符   obj?obj.name:"" obj?.name
     if(valid){
       //校验通过
-      
+      //userStore.login(ruleForm) 大概率是异步操作（比如发 AJAX 请求给后端验证密码），
+      // 但你没有等待它执行完成、也没有判断返回结果；
+      // router.push("/") //错误.
+      //加守卫可行
+      await userStore.login(ruleForm)
+      router.push("/") 
     }
   })
 }
