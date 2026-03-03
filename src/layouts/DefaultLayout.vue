@@ -7,7 +7,7 @@ import TabsLayout from "./TabsLayout.vue"
 
 <template>
   <el-container>
-    <el-aside width="200px">
+    <el-aside width="160px">
       <Menu></Menu>
     </el-aside>
     <el-container>
