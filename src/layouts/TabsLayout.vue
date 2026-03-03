@@ -20,13 +20,39 @@
 <script setup lang="ts">
 import { useTabsStore } from "@/store/tabs"
 import { storeToRefs } from "pinia"
-import { useRouter } from "vue-router"
+import { useRouter,useRoute } from "vue-router"
+import { useUserStore } from "@/store/auth"
+import { onMounted } from "vue"
 
 const tabsStore = useTabsStore()
 const { tabs,currentTab } = storeToRefs(tabsStore)
-const { setCurrentTab } = tabsStore
 const router = useRouter()
+const route = useRoute()
+const userStore = useUserStore()
+const { menu } = storeToRefs(userStore)
+const { setCurrentTab,addTab,removeTab } = tabsStore
 // console.log(tabs.value)
+
+function findObjectByUrl(arr:any[], url:string){
+  for(const item of arr){
+    if(item.url === url){
+      return item
+    }
+    if(item.children){
+      const found:any = findObjectByUrl(item.children, url)
+      if(found){
+        return found
+      }
+    }
+  }
+  return null
+}
+
+onMounted(() => {
+  const {name,url,icon} = findObjectByUrl(menu.value, route.path)
+  addTab(name,url,icon)
+  setCurrentTab(name,url)
+});
 
 const handleClick = ({index}:{index:number}) => {
   // console.log(tabs.value[index]!.name)
@@ -35,7 +61,8 @@ const handleClick = ({index}:{index:number}) => {
 }
 
 const remove = (TabPaneName:string) => {
-  console.log(TabPaneName)
+  removeTab(TabPaneName)
+  router.push(currentTab.value.url)
 }
 </script>
 

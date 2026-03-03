@@ -15,7 +15,8 @@ router.beforeEach((to) => {
       return {path:"/"}
     }
     //权限控制
-    if(to.meta?.needAuth && userStore.roles.some((role:string)=>(to.meta.needAuth as string[]).includes(role))){
+    // 如果路由需要权限 但 用户无权限 → 跳转到 /
+    if(to.meta?.needAuth && !userStore.roles.some((role:string)=>(to.meta.needAuth as string[]).includes(role))){
       return {path:"/"}
     }
   }
