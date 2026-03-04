@@ -36,11 +36,22 @@
     </el-row>
   </el-card>
   <el-card class="mt">
-    <el-button type="danger">批量删除</el-button>
-    <el-button icon="Download" type="primary">导出订单数据到Excel</el-button>
+    <el-button 
+      type="danger" 
+      :disabled="!selectionList.length" 
+      @click="handleBatchDelete">
+      批量删除
+    </el-button>
+    <el-button 
+      icon="Download" 
+      type="primary" 
+      :disabled="!selectionList.length" 
+      @click="exportToExcel">
+      导出订单数据到Excel
+    </el-button>
   </el-card>
   <el-card class="mt">
-    <el-table :data="dataList" v-loading="loading">
+    <el-table :data="dataList" v-loading="loading" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column type="index" label="序号" width="80"></el-table-column>
       <el-table-column label="订单号" prop="orderNo"></el-table-column>
@@ -59,8 +70,8 @@
       </el-table-column>
       <el-table-column label="操作">
         <template #default="scope">
-          <el-button type="primary" size="small">详情</el-button>
-          <el-button type="danger" size="small">删除</el-button>
+          <el-button type="primary" size="small" @click="handleDetail(scope.row.orderNo)">d</el-button>
+          <el-button type="danger" size="small">-</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -80,8 +91,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useHttp } from '@/hooks/useHttp'
+import { batchDeleteApi } from '@/api/operation'
+import { ElMessage } from 'element-plus'
+import { useRouter, useRoute } from 'vue-router'
+import { useTabsStore } from '@/store/tabs'
+import * as XLSX from 'xlsx'
+import { saveAs } from 'file-saver'
 
 interface SearchType{
   orderNo: string,
@@ -122,7 +139,6 @@ const handleChange = (val:string[]) => {
 const {dataList,loading,totals,pageInfo,loadData,handleCurrentChange,handleSizeChange,resetPagination} = useHttp<SelectionListType>("/orderList", searchParams)
 
 const handleReset = () => {
-  resetPagination()
   date.value = ""
   searchParams.value = {
     orderNo: "",
@@ -132,5 +148,54 @@ const handleReset = () => {
     startDate: "",
     endDate: ""
   }
+  resetPagination()
+}
+
+const selectionList = ref<SelectionListType[]>([])
+const handleSelectionChange = (selection:SelectionListType[]) => {
+  selectionList.value = selection
+}
+
+const handleBatchDelete = async () => {
+  try{
+    const res = await batchDeleteApi(selectionList.value.map((item:SelectionListType)=>item.orderNo))
+    if(res.code === 200){
+      ElMessage({
+        message: res.data,
+        type: "success"
+      })
+      loadData()
+    }
+  }catch(e){
+    console.log(e)
+  }
+}
+
+const router = useRouter()
+const tabsStore = useTabsStore()
+const { addTab, setCurrentTab } = tabsStore
+const handleDetail = (orderNo:string) => {
+  addTab("订单详情", "/operations/detail", "Share")
+  setCurrentTab("订单详情", "/operations/detail")
+  router.push("/operations/detail?orderNo=" + orderNo)
+  
+}
+
+const route = useRoute()
+watch(()=>route.name,(to, from)=>{
+  //其他页面回订单管理页面重新加载数据
+  if(to === "orders" && from !== "detail"){
+    loadData()
+  }
+})
+
+//导出excel表格
+const exportToExcel = () => {
+  const ws = XLSX.utils.json_to_sheet(selectionList.value)//把数据转成工作表格式
+  const wb = XLSX.utils.book_new()//创建新的工作簿
+  XLSX.utils.book_append_sheet(wb, ws, "sheet1")//工作簿加到工作表中并命名
+  const wbout = XLSX.write(wb,{bookType:'xlsx',type:"array"})
+  const blob = new Blob([wbout],{type:"application/octet-stream"})
+  saveAs(blob,"导入的数据.xlsx")
 }
 </script>

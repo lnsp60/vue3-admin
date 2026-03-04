@@ -14,7 +14,13 @@
       </template>
     </el-tab-pane>
   </el-tabs > 
-  <RouterView/>
+  <!-- keep-alive：Vue 内置的缓存组件， 作用是缓存包裹的组件实例，避免组件重复创建 / 销毁（比如列表页滚动到第 20 条，切换路由再返回，仍停留在第 20 条） -->
+  <RouterView v-slot="{Component}"> 
+    <keep-alive>
+      <component :is="Component" :key="$route.name" v-if="$route.meta.keepAlive"></component>
+    </keep-alive>
+    <component :is="Component" :key="$route.name" v-if="!$route.meta.keepAlive"></component>
+  </RouterView>
 </template>
 
 <script setup lang="ts">

@@ -39,5 +39,5 @@ export const useTabsStore = defineStore("tabs", () => {
       }
     }
   }
-  return { tabs, addTab,  currentTab, setCurrentTab,removeTab }
+  return { tabs, addTab,  currentTab, setCurrentTab, removeTab }
 })
