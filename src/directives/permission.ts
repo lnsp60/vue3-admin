@@ -6,7 +6,7 @@ export default {
     const userStore = useUserStore()
     const { roles } = userStore
     const requirePermission = binding.value
-    if(!roles.include(requirePermission)){
+    if(!roles.includes(requirePermission)){
       el.style.display = "none"
     }
   },
