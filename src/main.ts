@@ -14,6 +14,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import { createPinia  } from 'pinia'
 
 import "@/router/guard"
+import permission from './directives/permission'
 
 const app = createApp(App)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
@@ -24,5 +25,7 @@ const pinia = createPinia()
 app.use(pinia)
 app.use(router)
 app.use(ElementPlus)
+//自定义指令全局注册
+app.directive('permission', permission)
 
 app.mount('#app')
