@@ -105,6 +105,8 @@ onMounted(async () => {
   const { data } = await typeListApi()
   typeList.value = data
 })
+
+console.log(import.meta.env.VITE_API_URL)
 </script>
 
 <style lang="less" scoped>

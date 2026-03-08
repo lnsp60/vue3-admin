@@ -3,7 +3,7 @@ import type { AxiosInstance,InternalAxiosRequestConfig,AxiosResponse,AxiosError 
 import { ElNotification } from 'element-plus'//错误弹框
 
 const service:AxiosInstance = axios.create({
-  baseURL: "https://www.demo.com", // 后面替换成环境变量
+  baseURL: import.meta.env.VITE_API_URL, // 后面替换成环境变量
   timeout: 5000
 })
 
